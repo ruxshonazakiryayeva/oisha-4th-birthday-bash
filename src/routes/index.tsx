@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { CalendarHeart, Crown, MapPin, Sparkles } from "lucide-react";
+import { CalendarHeart, Clock, Crown, MapPin, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { Countdown } from "@/components/invite/Countdown";
 import { GuestList } from "@/components/invite/GuestList";
 import { MusicPlayer } from "@/components/invite/MusicPlayer";
 import { Particles } from "@/components/invite/Particles";
 import { RsvpForm } from "@/components/invite/RsvpForm";
+import { Schedule } from "@/components/invite/Schedule";
+import { SiteLink } from "@/components/invite/SiteLink";
 import { LANGS, PARTY, T, type Lang } from "@/lib/invite-content";
 import castle from "@/assets/castle.jpg";
 import photo1 from "@/assets/photo-1.jpg";
@@ -61,6 +63,7 @@ function Invite() {
 
       <GuestList lang={lang} />
       <MusicPlayer lang={lang} />
+      <SiteLink />
 
       {/* language switch */}
       <div className="glass fixed left-4 top-4 z-30 flex gap-1 rounded-full p-1">
@@ -117,6 +120,16 @@ function Invite() {
             <MapPin className="h-4 w-4" />
             {t.mapBtn}
           </button>
+        </section>
+
+        {/* Schedule */}
+        <section className="glass mt-12 rounded-3xl p-6 sm:p-8">
+          <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
+            <Clock className="h-6 w-6 text-primary" />
+            {t.schedule}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t.scheduleSub}</p>
+          <Schedule lang={lang} />
         </section>
 
         {/* Gallery */}
