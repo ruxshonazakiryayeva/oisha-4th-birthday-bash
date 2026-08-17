@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Heart, Send } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { T, type Lang } from "@/lib/invite-content";
+import { PARTY, T, type Lang } from "@/lib/invite-content";
 
 export function RsvpForm({ lang }: { lang: Lang }) {
   const t = T[lang];
@@ -17,11 +17,12 @@ export function RsvpForm({ lang }: { lang: Lang }) {
     e.preventDefault();
     if (!name.trim()) return;
     setBusy(true);
-    const { error } = await supabase.from("rsvps").insert({
+    const { error } = await supabase.from("invitation_rsvp").insert({
+      invitation: PARTY.invitationSlug,
       name: name.trim().slice(0, 100),
-      attending,
+      attendance: attending ? "yes" : "no",
       guests: attending ? guests : 0,
-      message: message.trim().slice(0, 1000) || null,
+      comment: message.trim().slice(0, 1000) || null,
     });
     setBusy(false);
     if (error) {
