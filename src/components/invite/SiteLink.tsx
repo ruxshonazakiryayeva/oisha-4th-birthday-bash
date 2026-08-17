@@ -1,4 +1,4 @@
-const WEBINVITE_URL = "https://github.com/ruxshonazakiryayeva/ruxshonazakiryayeva-verdant-kitsune-launch";
+const WEBINVITE_URL = "https://webinvite-six.vercel.app/";
 
 export function SiteLink() {
   return (
