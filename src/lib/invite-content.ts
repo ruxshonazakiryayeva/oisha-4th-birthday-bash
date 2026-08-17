@@ -1,6 +1,8 @@
 export const PARTY = {
   name: "Oisha",
   age: 4,
+  // Bu shablonni invitation_rsvp jadvalidagi boshqa yozuvlardan ajratib turadigan noyob slug
+  invitationSlug: "oisha-4-birthday",
   // 3 February 2027, 15:00
   date: new Date("2027-02-03T15:00:00+05:00"),
   mapUrl: "https://share.google/4bQlX6U21ory5SUu8",
@@ -57,6 +59,9 @@ type Dict = {
   totalGuests: string;
   empty: string;
   footer: string;
+  schedule: string;
+  scheduleSub: string;
+  scheduleItems: { time: string; title: string }[];
 };
 
 export const T: Record<Lang, Dict> = {
@@ -100,6 +105,16 @@ export const T: Record<Lang, Dict> = {
     totalGuests: "Jami mehmon",
     empty: "Hozircha javoblar yo'q",
     footer: "Sizni kutamiz!",
+    schedule: "Bayram dasturi",
+    scheduleSub: "Kun davomida bizni nima kutmoqda",
+    scheduleItems: [
+      { time: "16:00", title: "Mehmonlarni kutib olish" },
+      { time: "16:30", title: "Qiziqarli o'yinlar" },
+      { time: "17:30", title: "Bayram dasturxoni" },
+      { time: "18:00", title: "Tort kesish" },
+      { time: "18:20", title: "Musiqa va o'yinlar" },
+      { time: "19:00", title: "Esdalik uchun suratga tushish" },
+    ],
   },
   ru: {
     invitation: "Приглашение",
@@ -141,6 +156,16 @@ export const T: Record<Lang, Dict> = {
     totalGuests: "Всего гостей",
     empty: "Пока нет ответов",
     footer: "Ждём вас!",
+    schedule: "Программа праздника",
+    scheduleSub: "Что нас ждёт в течение дня",
+    scheduleItems: [
+      { time: "16:00", title: "Встреча гостей" },
+      { time: "16:30", title: "Весёлые игры" },
+      { time: "17:30", title: "Праздничный стол" },
+      { time: "18:00", title: "Разрезание торта" },
+      { time: "18:20", title: "Музыка и танцы" },
+      { time: "19:00", title: "Памятное фото" },
+    ],
   },
   en: {
     invitation: "Invitation",
@@ -182,5 +207,15 @@ export const T: Record<Lang, Dict> = {
     totalGuests: "Total guests",
     empty: "No replies yet",
     footer: "See you there!",
+    schedule: "Party schedule",
+    scheduleSub: "What awaits us during the day",
+    scheduleItems: [
+      { time: "4:00 PM", title: "Welcoming guests" },
+      { time: "4:30 PM", title: "Fun games" },
+      { time: "5:30 PM", title: "Festive table" },
+      { time: "6:00 PM", title: "Cake cutting" },
+      { time: "6:20 PM", title: "Music & dancing" },
+      { time: "7:00 PM", title: "Memory photos" },
+    ],
   },
 };
