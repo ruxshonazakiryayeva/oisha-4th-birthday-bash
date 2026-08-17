@@ -7,27 +7,28 @@ import { PARTY, T, type Lang } from "@/lib/invite-content";
 type Rsvp = {
   id: string;
   name: string;
-  attending: boolean;
+  attendance: string;
   guests: number;
-  message: string | null;
+  comment: string | null;
   created_at: string;
 };
 
 function Panel({ lang }: { lang: Lang }) {
   const t = T[lang];
   const { data, isLoading } = useQuery({
-    queryKey: ["rsvps"],
+    queryKey: ["rsvps", PARTY.invitationSlug],
     queryFn: async (): Promise<Rsvp[]> => {
       const { data, error } = await supabase
-        .from("rsvps")
-        .select("*")
+        .from("invitation_rsvp")
+        .select("id, name, attendance, guests, comment, created_at")
+        .eq("invitation", PARTY.invitationSlug)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Rsvp[];
     },
   });
 
-  const yes = (data ?? []).filter((r) => r.attending);
+  const yes = (data ?? []).filter((r) => r.attendance === "yes");
   const totalGuests = yes.reduce((n, r) => n + (r.guests || 0), 0);
 
   return (
@@ -52,11 +53,13 @@ function Panel({ lang }: { lang: Lang }) {
           <div key={r.id} className="rounded-2xl border border-border/60 bg-card/70 p-3">
             <div className="flex items-center justify-between gap-2">
               <span className="font-semibold text-foreground">{r.name}</span>
-              <span className={`text-xs ${r.attending ? "text-primary" : "text-muted-foreground"}`}>
-                {r.attending ? `${t.coming} · ${r.guests}` : t.notComing}
+              <span
+                className={`text-xs ${r.attendance === "yes" ? "text-primary" : "text-muted-foreground"}`}
+              >
+                {r.attendance === "yes" ? `${t.coming} · ${r.guests}` : t.notComing}
               </span>
             </div>
-            {r.message && <p className="mt-1 text-sm text-muted-foreground">{r.message}</p>}
+            {r.comment && <p className="mt-1 text-sm text-muted-foreground">{r.comment}</p>}
           </div>
         ))}
       </div>
@@ -77,7 +80,7 @@ export function GuestList({ lang }: { lang: Lang }) {
         type="button"
         onClick={() => setOpen(true)}
         aria-label={t.guestList}
-        className="glass fixed right-4 top-4 z-30 flex h-11 w-11 items-center justify-center rounded-full shadow-soft transition-transform hover:scale-110"
+        className="glass fixed bottom-20 right-4 z-30 flex h-11 w-11 items-center justify-center rounded-full shadow-soft transition-transform hover:scale-110"
       >
         <KeyRound className="h-5 w-5 text-gold" />
       </button>
