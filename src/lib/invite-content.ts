@@ -67,7 +67,7 @@ type Dict = {
 export const T: Record<Lang, Dict> = {
   uz: {
     invitation: "Taklifnoma",
-    heroTitle: "Oisha 4 yoshga to'ldi!",
+    heroTitle: "Oisha 4 yoshga to'ladi!",
     heroSub: "Sehrli malika bayramiga sizni chin dildan kutamiz",
     days: "kun",
     hours: "soat",
