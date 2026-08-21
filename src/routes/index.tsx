@@ -20,16 +20,16 @@ import photo3 from "@/assets/photo-3.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Oisha 4 yoshga to'ldi — Taklifnoma" },
+      { title: "Tug'ilgan kun taklifnomasi" },
       {
         name: "description",
         content:
-          "Oishaning 4 yoshlik tug'ilgan kuniga taklifnoma: 2027-yil 3-fevral, Sxovat savdo markazi, 3-qavat bolalar maydonchasi. Kelishingizni tasdiqlang.",
+          "Bolajonimizning tug'ilgan kuniga taklifnoma. Sana, manzil va dastur bilan tanishing, kelishingizni tasdiqlang.",
       },
-      { property: "og:title", content: "Oisha 4 yoshga to'ldi — Taklifnoma" },
+      { property: "og:title", content: "Tug'ilgan kun taklifnomasi" },
       {
         property: "og:description",
-        content: "Sehrli malika bayrami — 2027-yil 3-fevral, Sxovat savdo markazi.",
+        content: "Tantanali bayramga sizni chin dildan taklif qilamiz.",
       },
     ],
   }),
