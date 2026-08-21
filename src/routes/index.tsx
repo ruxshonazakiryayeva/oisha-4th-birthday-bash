@@ -10,6 +10,7 @@ import { RsvpForm } from "@/components/invite/RsvpForm";
 import { Schedule } from "@/components/invite/Schedule";
 import { SiteLink } from "@/components/invite/SiteLink";
 import { LANGS, PARTY, T, type Lang } from "@/lib/invite-content";
+import { formatDateText, formatTimeText } from "@/lib/format-date";
 import { useInviteSettings } from "@/hooks/useInviteSettings";
 import castle from "@/assets/castle.jpg";
 import photo1 from "@/assets/photo-1.jpg";
@@ -49,6 +50,9 @@ function Invite() {
   const locationText = loading || !settings.location_text ? t.placeText : settings.location_text;
   const photos =
     !loading && settings.gallery_urls.length > 0 ? settings.gallery_urls : STATIC_PHOTOS;
+  const scheduleTimes = loading ? undefined : settings.schedule_times;
+  const dateText = formatDateText(eventDate, lang);
+  const timeText = formatTimeText(eventDate, lang);
 
   const heroTitle = t.heroTitle.replace(PARTY.name, childName);
 
@@ -77,6 +81,7 @@ function Invite() {
       <MusicPlayer lang={lang} youtubeId={youtubeId} />
       <SiteLink />
 
+      {/* language switch */}
       <div className="glass fixed left-4 top-4 z-30 flex gap-1 rounded-full p-1">
         {LANGS.map((l) => (
           <button
@@ -95,6 +100,7 @@ function Invite() {
       </div>
 
       <main className="relative z-10 mx-auto max-w-2xl px-4 pb-28 pt-24">
+        {/* Hero */}
         <section className="text-center">
           <Crown className="animate-bob mx-auto h-12 w-12 text-gold" />
           <p className="mt-3 text-xs font-bold uppercase tracking-[0.35em] text-accent">
@@ -109,13 +115,14 @@ function Invite() {
           </div>
         </section>
 
+        {/* Date & place */}
         <section className="glass mt-12 rounded-3xl p-6 sm:p-8">
           <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
             <CalendarHeart className="h-6 w-6 text-primary" />
             {t.whenWhere}
           </h2>
-          <p className="font-display mt-4 text-3xl text-foreground">{t.dateText}</p>
-          <p className="text-lg text-accent">{t.timeText}</p>
+          <p className="font-display mt-4 text-3xl text-foreground">{dateText}</p>
+          <p className="text-lg text-accent">{timeText}</p>
 
           <div className="mt-6 flex items-start gap-3 rounded-2xl bg-secondary/60 p-4">
             <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
@@ -131,15 +138,17 @@ function Invite() {
           </button>
         </section>
 
+        {/* Schedule */}
         <section className="glass mt-12 rounded-3xl p-6 sm:p-8">
           <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
             <Clock className="h-6 w-6 text-primary" />
             {t.schedule}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{t.scheduleSub}</p>
-          <Schedule lang={lang} />
+          <Schedule lang={lang} times={scheduleTimes} />
         </section>
 
+        {/* Gallery */}
         <section className="mt-12">
           <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
             <Sparkles className="h-6 w-6 text-gold" />
@@ -165,6 +174,7 @@ function Invite() {
           </div>
         </section>
 
+        {/* RSVP */}
         <section className="mt-12">
           <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
             <Crown className="h-6 w-6 text-primary" />
@@ -177,7 +187,7 @@ function Invite() {
         <footer className="mt-14 text-center">
           <p className="font-display text-xl text-accent">{t.footer}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {childName} · {t.dateText}
+            {childName} · {dateText}
           </p>
         </footer>
       </main>
