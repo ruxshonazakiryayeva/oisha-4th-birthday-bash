@@ -6,11 +6,12 @@ export type InviteSettings = {
   slug: string;
   child_name: string;
   age: number;
-  event_date: string;
+  event_date: string; // ISO string
   location_text: string;
   map_url: string | null;
   youtube_id: string | null;
   gallery_urls: string[];
+  schedule_times: string[];
 };
 
 const FALLBACK: InviteSettings = {
@@ -22,6 +23,7 @@ const FALLBACK: InviteSettings = {
   map_url: PARTY.mapUrl,
   youtube_id: PARTY.youtubeId,
   gallery_urls: [],
+  schedule_times: [],
 };
 
 export function useInviteSettings(slug: string = PARTY.invitationSlug) {
