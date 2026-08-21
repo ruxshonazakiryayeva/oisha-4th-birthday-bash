@@ -57,11 +57,14 @@ function EditForm() {
 
   const save = async () => {
     setSaving(true);
+    const eventDateWithTz = form.event_date.length === 16
+      ? `${form.event_date}:00+05:00`
+      : form.event_date;
     const { error } = await supabase.from("invitation_settings").upsert({
       slug: form.slug,
       child_name: form.child_name,
       age: form.age,
-      event_date: form.event_date,
+      event_date: eventDateWithTz,
       location_text: form.location_text,
       map_url: form.map_url,
       youtube_id: form.youtube_id,
