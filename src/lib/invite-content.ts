@@ -68,7 +68,7 @@ export const T: Record<Lang, Dict> = {
   uz: {
     invitation: "Taklifnoma",
     heroTitle: "Oisha 4 yoshga to'ladi!",
-    heroSub: "Sehrli malika bayramiga sizni chin dildan kutamiz",
+    heroSub: "Bayramni biz bilan birga nishonlashingizdan mamnun bo'lamiz!",
     days: "kun",
     hours: "soat",
     minutes: "daqiqa",
@@ -119,7 +119,7 @@ export const T: Record<Lang, Dict> = {
   ru: {
     invitation: "Приглашение",
     heroTitle: "Оише 4 года!",
-    heroSub: "Приглашаем вас на волшебный праздник маленькой принцессы",
+    heroSub: "Будем рады отпраздновать этот день вместе с вами!",
     days: "дней",
     hours: "часов",
     minutes: "минут",
@@ -170,7 +170,7 @@ export const T: Record<Lang, Dict> = {
   en: {
     invitation: "Invitation",
     heroTitle: "Oisha turns 4!",
-    heroSub: "You are warmly invited to a magical little princess party",
+    heroSub: "We'd love to celebrate this special day together with you!",
     days: "days",
     hours: "hours",
     minutes: "minutes",
