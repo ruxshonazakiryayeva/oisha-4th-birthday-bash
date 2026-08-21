@@ -54,7 +54,8 @@ function Invite() {
   const dateText = formatDateText(eventDate, lang);
   const timeText = formatTimeText(eventDate, lang);
 
-  const heroTitle = t.heroTitle.replace(PARTY.name, childName);
+  const age = loading ? PARTY.age : settings.age;
+  const heroTitle = t.heroTitle.replace(PARTY.name, childName).replace(String(PARTY.age), String(age));
 
   const openMap = () => {
     if (!mapUrl) {
