@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PARTY, T, type Lang } from "@/lib/invite-content";
+import { T, type Lang } from "@/lib/invite-content";
 
 function parts(ms: number) {
   const s = Math.max(0, Math.floor(ms / 1000));
@@ -11,14 +11,15 @@ function parts(ms: number) {
   };
 }
 
-export function Countdown({ lang }: { lang: Lang }) {
+export function Countdown({ lang, date }: { lang: Lang; date: Date }) {
   const t = T[lang];
-  const [left, setLeft] = useState(() => PARTY.date.getTime() - Date.now());
+  const [left, setLeft] = useState(() => date.getTime() - Date.now());
 
   useEffect(() => {
-    const id = setInterval(() => setLeft(PARTY.date.getTime() - Date.now()), 1000);
+    setLeft(date.getTime() - Date.now());
+    const id = setInterval(() => setLeft(date.getTime() - Date.now()), 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [date]);
 
   const p = parts(left);
   const cells = [
