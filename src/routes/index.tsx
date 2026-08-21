@@ -11,7 +11,6 @@ import { Schedule } from "@/components/invite/Schedule";
 import { SiteLink } from "@/components/invite/SiteLink";
 import { LANGS, PARTY, T, type Lang } from "@/lib/invite-content";
 import { formatDateText, formatTimeText } from "@/lib/format-date";
-import { useInviteSettings } from "@/hooks/useInviteSettings";
 import castle from "@/assets/castle.jpg";
 import photo1 from "@/assets/photo-1.jpg";
 import photo2 from "@/assets/photo-2.jpg";
@@ -41,20 +40,20 @@ const STATIC_PHOTOS = [photo1, photo2, photo3];
 function Invite() {
   const [lang, setLang] = useState<Lang>("uz");
   const t = T[lang];
-  const { settings, loading } = useInviteSettings();
 
-  const childName = loading ? PARTY.name : settings.child_name;
-  const eventDate = loading ? PARTY.date : new Date(settings.event_date);
-  const mapUrl = loading ? PARTY.mapUrl : settings.map_url;
-  const youtubeId = loading ? PARTY.youtubeId : settings.youtube_id ?? "";
-  const locationText = loading || !settings.location_text ? t.placeText : settings.location_text;
-  const photos =
-    !loading && settings.gallery_urls.length > 0 ? settings.gallery_urls : STATIC_PHOTOS;
-  const scheduleTimes = loading ? undefined : settings.schedule_times;
+  // Bu — asosiy demo sahifasi. Hech qachon Supabase'dan o'qimaydi,
+  // doim asl Oisha namunasini ko'rsatadi. Tahrirlash faqat /edit sahifasida ishlaydi.
+  const childName = PARTY.name;
+  const eventDate = PARTY.date;
+  const mapUrl = PARTY.mapUrl;
+  const youtubeId = PARTY.youtubeId;
+  const locationText = t.placeText;
+  const photos = STATIC_PHOTOS;
+  const scheduleTimes = undefined;
+  const age = PARTY.age;
   const dateText = formatDateText(eventDate, lang);
   const timeText = formatTimeText(eventDate, lang);
 
-  const age = loading ? PARTY.age : settings.age;
   const heroTitle = t.heroTitle.replace(PARTY.name, childName).replace(String(PARTY.age), String(age));
 
   const openMap = () => {
