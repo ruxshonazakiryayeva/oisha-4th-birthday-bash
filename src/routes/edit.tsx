@@ -76,13 +76,14 @@ function EditForm() {
     }
   };
 
-  const uploadPhotos = async (files: FileList | null) => {
+    const uploadPhotos = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploading(true);
     const newUrls: string[] = [];
 
     for (const file of Array.from(files)) {
-      const path = `${form.slug}/${Date.now()}-${file.name}`;
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${form.slug}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
       const { error: uploadError } = await supabase.storage
         .from("invitation-photos")
         .upload(path, file);
