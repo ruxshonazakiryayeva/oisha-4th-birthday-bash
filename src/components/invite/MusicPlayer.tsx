@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
-import { PARTY, T, type Lang } from "@/lib/invite-content";
+import { T, type Lang } from "@/lib/invite-content";
 
-export function MusicPlayer({ lang }: { lang: Lang }) {
+export function MusicPlayer({ lang, youtubeId }: { lang: Lang; youtubeId: string }) {
   const t = T[lang];
   const frame = useRef<HTMLIFrameElement>(null);
   const [ready, setReady] = useState(false);
@@ -36,6 +36,8 @@ export function MusicPlayer({ lang }: { lang: Lang }) {
     setPlaying(true);
   };
 
+  if (!youtubeId) return null;
+
   return (
     <>
       {ready && (
@@ -45,7 +47,7 @@ export function MusicPlayer({ lang }: { lang: Lang }) {
           aria-hidden
           tabIndex={-1}
           className="pointer-events-none fixed h-px w-px opacity-0"
-          src={`https://www.youtube-nocookie.com/embed/${PARTY.youtubeId}?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=${PARTY.youtubeId}`}
+          src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&mute=1&loop=1&controls=0&playsinline=1&enablejsapi=1&playlist=${youtubeId}`}
           allow="autoplay"
         />
       )}
