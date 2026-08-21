@@ -10,6 +10,7 @@ import { RsvpForm } from "@/components/invite/RsvpForm";
 import { Schedule } from "@/components/invite/Schedule";
 import { SiteLink } from "@/components/invite/SiteLink";
 import { LANGS, PARTY, T, type Lang } from "@/lib/invite-content";
+import { useInviteSettings } from "@/hooks/useInviteSettings";
 import castle from "@/assets/castle.jpg";
 import photo1 from "@/assets/photo-1.jpg";
 import photo2 from "@/assets/photo-2.jpg";
@@ -34,18 +35,29 @@ export const Route = createFileRoute("/")({
   component: Invite,
 });
 
-const PHOTOS = [photo1, photo2, photo3];
+const STATIC_PHOTOS = [photo1, photo2, photo3];
 
 function Invite() {
   const [lang, setLang] = useState<Lang>("uz");
   const t = T[lang];
+  const { settings, loading } = useInviteSettings();
+
+  const childName = loading ? PARTY.name : settings.child_name;
+  const eventDate = loading ? PARTY.date : new Date(settings.event_date);
+  const mapUrl = loading ? PARTY.mapUrl : settings.map_url;
+  const youtubeId = loading ? PARTY.youtubeId : settings.youtube_id ?? "";
+  const locationText = loading || !settings.location_text ? t.placeText : settings.location_text;
+  const photos =
+    !loading && settings.gallery_urls.length > 0 ? settings.gallery_urls : STATIC_PHOTOS;
+
+  const heroTitle = t.heroTitle.replace(PARTY.name, childName);
 
   const openMap = () => {
-    if (!PARTY.mapUrl) {
+    if (!mapUrl) {
       toast.info(t.mapSoon);
       return;
     }
-    window.open(PARTY.mapUrl, "_blank", "noopener,noreferrer");
+    window.open(mapUrl, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -62,10 +74,9 @@ function Invite() {
       <Particles />
 
       <GuestList lang={lang} />
-      <MusicPlayer lang={lang} />
+      <MusicPlayer lang={lang} youtubeId={youtubeId} />
       <SiteLink />
 
-      {/* language switch */}
       <div className="glass fixed left-4 top-4 z-30 flex gap-1 rounded-full p-1">
         {LANGS.map((l) => (
           <button
@@ -84,22 +95,20 @@ function Invite() {
       </div>
 
       <main className="relative z-10 mx-auto max-w-2xl px-4 pb-28 pt-24">
-        {/* Hero */}
         <section className="text-center">
           <Crown className="animate-bob mx-auto h-12 w-12 text-gold" />
           <p className="mt-3 text-xs font-bold uppercase tracking-[0.35em] text-accent">
             {t.invitation}
           </p>
           <h1 className="font-display animate-sparkle mt-3 text-4xl leading-tight text-foreground sm:text-6xl">
-            {t.heroTitle}
+            {heroTitle}
           </h1>
           <p className="mx-auto mt-4 max-w-md text-base text-muted-foreground">{t.heroSub}</p>
           <div className="mt-8">
-            <Countdown lang={lang} />
+            <Countdown lang={lang} date={eventDate} />
           </div>
         </section>
 
-        {/* Date & place */}
         <section className="glass mt-12 rounded-3xl p-6 sm:p-8">
           <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
             <CalendarHeart className="h-6 w-6 text-primary" />
@@ -112,7 +121,7 @@ function Invite() {
             <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
             <div>
               <p className="text-sm font-bold text-foreground">{t.place}</p>
-              <p className="text-sm text-muted-foreground">{t.placeText}</p>
+              <p className="text-sm text-muted-foreground">{locationText}</p>
             </div>
           </div>
 
@@ -122,7 +131,6 @@ function Invite() {
           </button>
         </section>
 
-        {/* Schedule */}
         <section className="glass mt-12 rounded-3xl p-6 sm:p-8">
           <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
             <Clock className="h-6 w-6 text-primary" />
@@ -132,7 +140,6 @@ function Invite() {
           <Schedule lang={lang} />
         </section>
 
-        {/* Gallery */}
         <section className="mt-12">
           <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
             <Sparkles className="h-6 w-6 text-gold" />
@@ -140,14 +147,14 @@ function Invite() {
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{t.gallerySub}</p>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {PHOTOS.map((src, i) => (
+            {photos.map((src, i) => (
               <div
-                key={i}
+                key={typeof src === "string" ? src : i}
                 className="glass aspect-square overflow-hidden rounded-3xl p-1.5 transition-transform hover:scale-[1.03]"
               >
                 <img
                   src={src}
-                  alt={`${PARTY.name} — ${i + 1}`}
+                  alt={`${childName} — ${i + 1}`}
                   loading="lazy"
                   width={800}
                   height={800}
@@ -158,7 +165,6 @@ function Invite() {
           </div>
         </section>
 
-        {/* RSVP */}
         <section className="mt-12">
           <h2 className="font-display flex items-center gap-2 text-2xl text-foreground">
             <Crown className="h-6 w-6 text-primary" />
@@ -171,7 +177,7 @@ function Invite() {
         <footer className="mt-14 text-center">
           <p className="font-display text-xl text-accent">{t.footer}</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            {PARTY.name} · {t.dateText}
+            {childName} · {t.dateText}
           </p>
         </footer>
       </main>
