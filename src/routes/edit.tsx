@@ -66,6 +66,7 @@ function EditForm() {
       map_url: form.map_url,
       youtube_id: form.youtube_id,
       gallery_urls: form.gallery_urls,
+      schedule_times: form.schedule_times,
     });
     setSaving(false);
     if (error) {
@@ -76,7 +77,7 @@ function EditForm() {
     }
   };
 
-    const uploadPhotos = async (files: FileList | null) => {
+  const uploadPhotos = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setUploading(true);
     const newUrls: string[] = [];
@@ -112,6 +113,8 @@ function EditForm() {
     return <div className="p-8 text-center">Yuklanmoqda...</div>;
   }
 
+  // event_date SQL'dan "2027-02-03T15:00:00+05:00" formatida keladi,
+  // <input type="datetime-local"> uchun "YYYY-MM-DDTHH:mm" kerak
   const dateForInput = form.event_date ? form.event_date.slice(0, 16) : "";
 
   return (
@@ -166,6 +169,37 @@ function EditForm() {
           value={form.youtube_id ?? ""}
           onChange={(e) => setForm({ ...form, youtube_id: e.target.value })}
         />
+      </div>
+
+      <div>
+        <Label>Bayram dasturi (soatlari)</Label>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Mehmon kutib olish, o'yinlar, dasturxon, tort, musiqa, surat — shu tartibda
+        </p>
+        <div className="space-y-2">
+          {[
+            "Mehmonlarni kutib olish",
+            "Qiziqarli o'yinlar",
+            "Bayram dasturxoni",
+            "Tort kesish",
+            "Musiqa va o'yinlar",
+            "Esdalik uchun suratga tushish",
+          ].map((label, i) => (
+            <div key={i} className="flex items-center gap-2">
+              <Input
+                type="time"
+                value={form.schedule_times[i] ?? ""}
+                onChange={(e) => {
+                  const next = [...form.schedule_times];
+                  next[i] = e.target.value;
+                  setForm({ ...form, schedule_times: next });
+                }}
+                className="w-28 shrink-0"
+              />
+              <span className="text-sm text-muted-foreground">{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div>
