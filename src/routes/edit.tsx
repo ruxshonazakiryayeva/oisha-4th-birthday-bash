@@ -1,241 +1,45 @@
-import { useEffect, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
-import { toast } from "sonner";
+import { useEffect } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { PARTY } from "@/lib/invite-content";
-import { useInviteSettings } from "@/hooks/useInviteSettings";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/edit")({
-  component: EditPage,
+  component: EditEntry,
 });
 
-function EditPage() {
-  const [unlocked, setUnlocked] = useState(false);
-  const [pin, setPin] = useState("");
-
-  if (!unlocked) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-4">
-        <div className="glass w-full max-w-xs rounded-2xl p-6 text-center">
-          <h1 className="mb-4 text-lg font-bold">Tahrirlash — Parol</h1>
-          <Input
-            type="password"
-            value={pin}
-            onChange={(e) => setPin(e.target.value)}
-            placeholder="Parolni kiriting"
-            className="mb-3"
-          />
-          <Button
-            className="w-full"
-            onClick={() => {
-              if (pin === PARTY.adminPin) setUnlocked(true);
-              else toast.error("Parol xato");
-            }}
-          >
-            Ochish
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  return <EditForm />;
+function makeSlug() {
+  const rand = Math.random().toString(36).slice(2, 8);
+  const time = Date.now().toString(36);
+  return `oisha-${time}${rand}`;
 }
 
-function EditForm() {
-  const { settings, loading, reload } = useInviteSettings();
-  const [form, setForm] = useState(settings);
-  const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState(false);
+function EditEntry() {
+  const navigate = useNavigate();
 
   useEffect(() => {
-    setForm(settings);
-  }, [settings]);
+    const createAndGo = async () => {
+      const slug = makeSlug();
 
-  const save = async () => {
-    setSaving(true);
-    const eventDateWithTz = form.event_date.length === 16
-      ? `${form.event_date}:00+05:00`
-      : form.event_date;
-    const { error } = await supabase.from("invitation_settings").upsert({
-      slug: form.slug,
-      child_name: form.child_name,
-      age: form.age,
-      event_date: eventDateWithTz,
-      location_text: form.location_text,
-      map_url: form.map_url,
-      youtube_id: form.youtube_id,
-      gallery_urls: form.gallery_urls,
-      schedule_times: form.schedule_times,
-    });
-    setSaving(false);
-    if (error) {
-      toast.error("Saqlashda xatolik: " + error.message);
-    } else {
-      toast.success("Saqlandi!");
-      reload();
-    }
-  };
+      await supabase.from("invitation_settings").insert({
+        slug,
+        child_name: PARTY.name,
+        age: PARTY.age,
+        event_date: PARTY.date.toISOString(),
+        location_text: "",
+        map_url: PARTY.mapUrl,
+        youtube_id: PARTY.youtubeId,
+      });
 
-  const uploadPhotos = async (files: FileList | null) => {
-    if (!files || files.length === 0) return;
-    setUploading(true);
-    const newUrls: string[] = [];
+      navigate({ to: "/edit/$slug", params: { slug }, replace: true });
+    };
 
-    for (const file of Array.from(files)) {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${form.slug}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("invitation-photos")
-        .upload(path, file);
-
-      if (uploadError) {
-        toast.error("Yuklashda xatolik: " + uploadError.message);
-        continue;
-      }
-
-      const { data } = supabase.storage.from("invitation-photos").getPublicUrl(path);
-      newUrls.push(data.publicUrl);
-    }
-
-    setForm((prev) => ({ ...prev, gallery_urls: [...prev.gallery_urls, ...newUrls] }));
-    setUploading(false);
-  };
-
-  const removePhoto = (url: string) => {
-    setForm((prev) => ({
-      ...prev,
-      gallery_urls: prev.gallery_urls.filter((u) => u !== url),
-    }));
-  };
-
-  if (loading) {
-    return <div className="p-8 text-center">Yuklanmoqda...</div>;
-  }
-
-  // event_date SQL'dan "2027-02-03T15:00:00+05:00" formatida keladi,
-  // <input type="datetime-local"> uchun "YYYY-MM-DDTHH:mm" kerak
-  const dateForInput = form.event_date ? form.event_date.slice(0, 16) : "";
+    createAndGo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
-    <div className="mx-auto min-h-screen max-w-md space-y-4 bg-background px-4 py-8">
-      <h1 className="text-xl font-bold">Taklifnomani tahrirlash</h1>
-
-      <div>
-        <Label>Bolaning ismi</Label>
-        <Input
-          value={form.child_name}
-          onChange={(e) => setForm({ ...form, child_name: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <Label>Necha yoshga to'ladi</Label>
-        <Input
-          type="number"
-          value={form.age}
-          onChange={(e) => setForm({ ...form, age: Number(e.target.value) })}
-        />
-      </div>
-
-      <div>
-        <Label>Sana va vaqt</Label>
-        <Input
-          type="datetime-local"
-          value={dateForInput}
-          onChange={(e) => setForm({ ...form, event_date: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <Label>Manzil (matn)</Label>
-        <Input
-          value={form.location_text}
-          onChange={(e) => setForm({ ...form, location_text: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <Label>Xarita havolasi</Label>
-        <Input
-          value={form.map_url ?? ""}
-          onChange={(e) => setForm({ ...form, map_url: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <Label>YouTube video ID (musiqa)</Label>
-        <Input
-          value={form.youtube_id ?? ""}
-          onChange={(e) => setForm({ ...form, youtube_id: e.target.value })}
-        />
-      </div>
-
-      <div>
-        <Label>Bayram dasturi (soatlari)</Label>
-        <p className="mb-2 text-xs text-muted-foreground">
-          Mehmon kutib olish, o'yinlar, dasturxon, tort, musiqa, surat — shu tartibda
-        </p>
-        <div className="space-y-2">
-          {[
-            "Mehmonlarni kutib olish",
-            "Qiziqarli o'yinlar",
-            "Bayram dasturxoni",
-            "Tort kesish",
-            "Musiqa va o'yinlar",
-            "Esdalik uchun suratga tushish",
-          ].map((label, i) => (
-            <div key={i} className="flex items-center gap-2">
-              <Input
-                type="time"
-                value={form.schedule_times[i] ?? ""}
-                onChange={(e) => {
-                  const next = [...form.schedule_times];
-                  next[i] = e.target.value;
-                  setForm({ ...form, schedule_times: next });
-                }}
-                className="w-28 shrink-0"
-              />
-              <span className="text-sm text-muted-foreground">{label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <Label>Galereya rasmlari</Label>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => uploadPhotos(e.target.files)}
-          disabled={uploading}
-          className="mt-1 block w-full text-sm"
-        />
-        {uploading && <p className="mt-1 text-xs text-muted-foreground">Yuklanmoqda...</p>}
-
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          {form.gallery_urls.map((url) => (
-            <div key={url} className="relative aspect-square overflow-hidden rounded-lg">
-              <img src={url} alt="" className="h-full w-full object-cover" />
-              <button
-                type="button"
-                onClick={() => removePhoto(url)}
-                className="absolute right-1 top-1 rounded-full bg-black/60 px-1.5 py-0.5 text-xs text-white"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <Button className="w-full" onClick={save} disabled={saving}>
-        {saving ? "Saqlanmoqda..." : "Saqlash"}
-      </Button>
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <p className="text-muted-foreground">Tayyorlanmoqda...</p>
     </div>
   );
 }
