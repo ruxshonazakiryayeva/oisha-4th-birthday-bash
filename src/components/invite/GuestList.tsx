@@ -13,15 +13,15 @@ type Rsvp = {
   created_at: string;
 };
 
-function Panel({ lang }: { lang: Lang }) {
+function Panel({ lang, slug }: { lang: Lang; slug: string }) {
   const t = T[lang];
   const { data, isLoading } = useQuery({
-    queryKey: ["rsvps", PARTY.invitationSlug],
+    queryKey: ["rsvps", slug],
     queryFn: async (): Promise<Rsvp[]> => {
       const { data, error } = await supabase
         .from("invitation_rsvp")
         .select("id, name, attendance, guests, comment, created_at")
-        .eq("invitation", PARTY.invitationSlug)
+        .eq("invitation", slug)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data as Rsvp[];
@@ -67,12 +67,14 @@ function Panel({ lang }: { lang: Lang }) {
   );
 }
 
-export function GuestList({ lang }: { lang: Lang }) {
+export function GuestList({ lang, slug }: { lang: Lang; slug?: string }) {
   const t = T[lang];
   const [open, setOpen] = useState(false);
   const [pin, setPin] = useState("");
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState(false);
+
+  const effectiveSlug = slug ?? PARTY.invitationSlug;
 
   return (
     <>
@@ -101,7 +103,7 @@ export function GuestList({ lang }: { lang: Lang }) {
             </div>
 
             {ok ? (
-              <Panel lang={lang} />
+              <Panel lang={lang} slug={effectiveSlug} />
             ) : (
               <form
                 className="mt-5"
