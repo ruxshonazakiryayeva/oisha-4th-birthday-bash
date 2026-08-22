@@ -18,6 +18,20 @@ import photo2 from "@/assets/photo-2.jpg";
 import photo3 from "@/assets/photo-3.jpg";
 
 export const Route = createFileRoute("/invite/$slug")({
+  head: () => ({
+    meta: [
+      { title: "Tug'ilgan kun taklifnomasi" },
+      {
+        name: "description",
+        content: "Qizimizning tug'ilgan kuniga sizni lutfan taklif etamiz!",
+      },
+      { property: "og:title", content: "Tug'ilgan kun taklifnomasi" },
+      {
+        property: "og:description",
+        content: "Qizimizning tug'ilgan kuniga sizni lutfan taklif etamiz!",
+      },
+    ],
+  }),
   component: InviteView,
 });
 
