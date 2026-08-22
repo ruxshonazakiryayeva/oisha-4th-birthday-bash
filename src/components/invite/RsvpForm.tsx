@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PARTY, T, type Lang } from "@/lib/invite-content";
 
-export function RsvpForm({ lang }: { lang: Lang }) {
+export function RsvpForm({ lang, slug }: { lang: Lang; slug?: string }) {
   const t = T[lang];
   const [name, setName] = useState("");
   const [attending, setAttending] = useState(true);
@@ -13,12 +13,14 @@ export function RsvpForm({ lang }: { lang: Lang }) {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
+  const effectiveSlug = slug ?? PARTY.invitationSlug;
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     setBusy(true);
     const { error } = await supabase.from("invitation_rsvp").insert({
-      invitation: PARTY.invitationSlug,
+      invitation: effectiveSlug,
       name: name.trim().slice(0, 100),
       attendance: attending ? "yes" : "no",
       guests: attending ? guests : 0,
