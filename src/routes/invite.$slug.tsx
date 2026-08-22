@@ -64,7 +64,7 @@ function InviteView() {
       <div className="fixed inset-0 bg-gradient-to-b from-background/50 via-background/70 to-background" />
       <Particles />
 
-      <GuestList lang={lang} />
+      <GuestList lang={lang} slug={slug} />
       <MusicPlayer lang={lang} youtubeId={youtubeId} />
       <SiteLink />
 
@@ -168,7 +168,7 @@ function InviteView() {
             {t.rsvp}
           </h2>
           <p className="mb-5 mt-1 text-sm text-muted-foreground">{t.rsvpSub}</p>
-          <RsvpForm lang={lang} />
+          <RsvpForm lang={lang} slug={slug} />
         </section>
 
         <footer className="mt-14 text-center">
