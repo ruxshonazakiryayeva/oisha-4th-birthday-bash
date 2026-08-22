@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useInviteSettings } from "@/hooks/useInviteSettings";
+import { MUSIC_PRESETS, extractYoutubeId } from "@/lib/music-presets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -153,11 +154,41 @@ function EditForm() {
       </div>
 
       <div>
-        <Label>YouTube video ID (musiqa)</Label>
-        <Input
-          value={form.youtube_id ?? ""}
-          onChange={(e) => setForm({ ...form, youtube_id: e.target.value })}
-        />
+        <Label>Musiqa</Label>
+        <p className="mb-2 text-xs text-muted-foreground">
+          Tayyor treklardan birini tanlang yoki o'z YouTube havolangizni joylashtiring
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {MUSIC_PRESETS.map((preset) => (
+            <button
+              key={preset.id}
+              type="button"
+              onClick={() => setForm({ ...form, youtube_id: preset.id })}
+              className={`rounded-xl border p-2 text-left text-xs transition-colors ${
+                form.youtube_id === preset.id
+                  ? "border-primary bg-primary/10 text-foreground"
+                  : "border-border text-muted-foreground hover:border-primary/50"
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-3">
+          <Label className="text-xs">Yoki YouTube havolasini joylashtiring</Label>
+          <Input
+            placeholder="https://youtube.com/watch?v=..."
+            onChange={(e) => {
+              const id = extractYoutubeId(e.target.value);
+              if (id) setForm({ ...form, youtube_id: id });
+            }}
+          />
+          {form.youtube_id && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Tanlangan trek ID: {form.youtube_id}
+            </p>
+          )}
+        </div>
       </div>
 
       <div>
