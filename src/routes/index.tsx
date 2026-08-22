@@ -155,11 +155,11 @@ function Invite() {
             {t.gallery}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">{t.gallerySub}</p>
-          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="mt-5 -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
             {photos.map((src, i) => (
               <div
                 key={typeof src === "string" ? src : i}
-                className="glass aspect-square overflow-hidden rounded-3xl p-1.5 transition-transform hover:scale-[1.03]"
+                className="glass aspect-square w-[70%] shrink-0 snap-center overflow-hidden rounded-3xl p-1.5 transition-transform sm:w-[45%]"
               >
                 <img
                   src={src}
