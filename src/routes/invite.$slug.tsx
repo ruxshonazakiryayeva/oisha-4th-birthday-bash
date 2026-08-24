@@ -12,6 +12,8 @@ import { SiteLink } from "@/components/invite/SiteLink";
 import { LANGS, PARTY, T, type Lang } from "@/lib/invite-content";
 import { formatDateText, formatTimeText } from "@/lib/format-date";
 import { useInviteSettings } from "@/hooks/useInviteSettings";
+import { usePaywall } from "@/hooks/usePaywall";
+import { Paywall } from "@/components/invite/Paywall";
 import castle from "@/assets/castle.jpg";
 import photo1 from "@/assets/photo-1.jpg";
 import photo2 from "@/assets/photo-2.jpg";
@@ -42,6 +44,7 @@ function InviteView() {
   const [lang, setLang] = useState<Lang>("uz");
   const t = T[lang];
   const { settings, loading } = useInviteSettings(slug);
+  const { status, isLocked, setStatus } = usePaywall(slug);
 
   const childName = loading ? PARTY.name : settings.child_name;
   const eventDate = loading ? PARTY.date : new Date(settings.event_date);
@@ -67,6 +70,9 @@ function InviteView() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-background">
+      {isLocked && (
+        <Paywall slug={slug} status={status} onSubmitted={() => setStatus("pending")} />
+      )}
       <img
         src={castle}
         alt=""
