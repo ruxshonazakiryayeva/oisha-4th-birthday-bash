@@ -172,6 +172,12 @@ function EditForm({ slug }: { slug: string }) {
       toast.success("Saqlandi!");
       setJustSaved(true);
       reload();
+      // Kabinetda ham yangi ism/sana ko'rinishi uchun markaziy jadvalni sinxronlaymiz
+      callWebinviteFn("sync-oisha-invitation", {
+        slug: form.slug,
+        childName: form.child_name,
+        eventDate: eventDateWithTz,
+      }).catch((e) => console.error("Sync xatosi", e));
     }
   };
 
