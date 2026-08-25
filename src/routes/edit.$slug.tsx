@@ -1,19 +1,142 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { Loader2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useInviteSettings } from "@/hooks/useInviteSettings";
 import { MUSIC_PRESETS, extractYoutubeId } from "@/lib/music-presets";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { callWebinviteFn } from "@/lib/webinviteApi";
 
 export const Route = createFileRoute("/edit/$slug")({
-  component: EditForm,
+  component: EditGate,
 });
 
-function EditForm() {
+const STORAGE_KEY = "webinvite_login_code";
+
+function LoginGate({ onConfirmed }: { onConfirmed: (code: string) => void }) {
+  const [loading, setLoading] = useState(false);
+  const [deepLink, setDeepLink] = useState<string | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const startLogin = async () => {
+    setLoading(true);
+    try {
+      const { code, deepLink } = await callWebinviteFn<{ code: string; deepLink: string }>("login-start");
+      localStorage.setItem(STORAGE_KEY, code);
+      setDeepLink(deepLink);
+      window.open(deepLink, "_blank", "noopener,noreferrer");
+
+      pollRef.current = setInterval(async () => {
+        const res = await callWebinviteFn<{ status: string }>("my-invitations", { code });
+        if (res.status === "confirmed") {
+          if (pollRef.current) clearInterval(pollRef.current);
+          onConfirmed(code);
+        }
+      }, 2000);
+    } catch (e) {
+      console.error(e);
+      toast.error("Xatolik yuz berdi, qayta urinib ko'ring");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
+
+  return (
+    <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 text-center">
+      <h1 className="text-xl font-bold text-foreground">Tahrirlash uchun kiring</h1>
+      <p className="mt-3 text-sm text-muted-foreground">
+        Taklifnomani tahrirlash uchun avval Telegram botimiz orqali ro'yxatdan o'ting.
+        Bu — sizning taklifnomangiz "Mening taklifnomalarim" bo'limida ko'rinishi uchun kerak.
+      </p>
+
+      <button
+        type="button"
+        onClick={startLogin}
+        disabled={loading}
+        className="btn-magic mt-6 flex w-full items-center justify-center gap-2"
+      >
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+        Telegram orqali kirish
+      </button>
+
+      {deepLink && (
+        <div className="mt-6 flex flex-col items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+          <p>Botda tasdiqlang — sahifa avtomatik ochiladi.</p>
+          <a href={deepLink} target="_blank" rel="noopener noreferrer" className="underline">
+            Bot ochilmadimi? Shu yerni bosing
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EditGate() {
   const { slug } = Route.useParams();
+  const [checking, setChecking] = useState(true);
+  const [ready, setReady] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const claim = async (code: string) => {
+    setChecking(true);
+    setError(null);
+    try {
+      await callWebinviteFn("claim-oisha-invitation", { code, slug });
+      setReady(true);
+    } catch (e: any) {
+      console.error(e);
+      const msg = String(e?.message || e);
+      if (msg.includes("boshqa foydalanuvchiga")) {
+        setError("Bu taklifnoma boshqa foydalanuvchiga tegishli — tahrirlash huquqingiz yo'q.");
+      } else {
+        setError("Xatolik yuz berdi, qayta urinib ko'ring.");
+      }
+      localStorage.removeItem(STORAGE_KEY);
+    } finally {
+      setChecking(false);
+    }
+  };
+
+  useEffect(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      claim(saved);
+    } else {
+      setChecking(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slug]);
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 text-center">
+        <p className="text-destructive">{error}</p>
+      </div>
+    );
+  }
+
+  if (!ready) {
+    return <LoginGate onConfirmed={(code) => claim(code)} />;
+  }
+
+  return <EditForm slug={slug} />;
+}
+
+function EditForm({ slug }: { slug: string }) {
   const { settings, loading, reload } = useInviteSettings(slug);
   const [form, setForm] = useState(settings);
   const [saving, setSaving] = useState(false);
@@ -89,7 +212,6 @@ function EditForm() {
   }
 
   const dateForInput = form.event_date ? form.event_date.slice(0, 16) : "";
-  const inviteUrl = `${window.location.origin}/invite/${slug}`;
 
   return (
     <div className="mx-auto min-h-screen max-w-md space-y-4 bg-background px-4 py-8">
