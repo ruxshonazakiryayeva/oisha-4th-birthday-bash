@@ -104,6 +104,16 @@ function EditGate() {
   };
 
   useEffect(() => {
+    // Kabinetdan "Tahrir" bosilganda ?code=... orqali sessiya uzatiladi —
+    // shunda qayta login so'ralmaydi
+    const urlCode = new URLSearchParams(window.location.search).get("code");
+    if (urlCode) {
+      localStorage.setItem(STORAGE_KEY, urlCode);
+      claim(urlCode);
+      // URL'ni tozalaymiz, kod manzil satrida ko'rinib qolmasin
+      window.history.replaceState({}, "", window.location.pathname);
+      return;
+    }
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       claim(saved);
