@@ -81,14 +81,19 @@ function EditGate() {
   const { slug } = Route.useParams();
   const [checking, setChecking] = useState(true);
   const [ready, setReady] = useState(false);
+  const [locked, setLocked] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const claim = async (code: string) => {
     setChecking(true);
     setError(null);
     try {
-      await callWebinviteFn("claim-oisha-invitation", { code, slug });
-      setReady(true);
+      const res = await callWebinviteFn<{ ok: boolean; status: string }>("claim-oisha-invitation", { code, slug });
+      if (res.status === "active") {
+        setLocked(true);
+      } else {
+        setReady(true);
+      }
     } catch (e: any) {
       console.error(e);
       const msg = String(e?.message || e);
@@ -135,6 +140,27 @@ function EditGate() {
     return (
       <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 text-center">
         <p className="text-destructive">{error}</p>
+      </div>
+    );
+  }
+
+  if (locked) {
+    return (
+      <div className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 text-center">
+        <Lock className="h-10 w-10 text-primary" />
+        <h1 className="mt-3 text-xl font-bold text-foreground">Taklifnoma faollashtirilgan</h1>
+        <p className="mt-3 text-sm text-muted-foreground">
+          Faollashgan taklifnomalarni endi tahrirlab bo'lmaydi — bu qoida noto'g'ri
+          foydalanishning oldini olish uchun kiritilgan (masalan, bitta sotib olingan
+          taklifnomani qayta-qayta boshqa tadbirlar uchun ishlatish).
+        </p>
+        <Link
+          to="/invite/$slug"
+          params={{ slug }}
+          className="btn-magic mt-6 inline-flex items-center justify-center"
+        >
+          Taklifnomani ko'rish
+        </Link>
       </div>
     );
   }
