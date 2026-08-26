@@ -33,6 +33,19 @@ export function RsvpForm({ lang, slug }: { lang: Lang; slug?: string }) {
     }
     toast.success(t.thanks);
     setDone(true);
+
+    // Egasiga Telegram orqali xabar yuboramiz (xatolik bo'lsa ham foydalanuvchi sezmaydi)
+    supabase.functions
+      .invoke("notify-rsvp", {
+        body: {
+          slug: effectiveSlug,
+          name: name.trim(),
+          attendance: attending ? "yes" : "no",
+          guests: attending ? guests : 0,
+          comment: message.trim() || null,
+        },
+      })
+      .catch((e) => console.error("notify-rsvp xatosi", e));
   };
 
   if (done) {
