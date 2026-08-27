@@ -18,6 +18,10 @@ export function usePaywall(slug: string) {
       if (!error && data && data[0]) {
         setStatus(data[0].status as ActivationStatus);
         setViewCount(data[0].view_count);
+        // Markaziy kabinetda ham "Ko'rilgan" statistikasi to'g'ri ko'rinishi uchun
+        supabase.functions
+          .invoke("sync-view-count", { body: { slug, viewCount: data[0].view_count } })
+          .catch((e) => console.error("sync-view-count xatosi", e));
       }
       setChecked(true);
     };
