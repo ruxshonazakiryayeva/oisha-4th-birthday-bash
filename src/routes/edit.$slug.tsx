@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, Lock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useInviteSettings } from "@/hooks/useInviteSettings";
 import { MUSIC_PRESETS, extractYoutubeId } from "@/lib/music-presets";
