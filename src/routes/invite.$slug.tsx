@@ -41,6 +41,7 @@ const STATIC_PHOTOS = [photo1, photo2, photo3];
 
 function InviteView() {
   const { slug } = Route.useParams();
+  const guestName = new URLSearchParams(window.location.search).get("to");
   const [lang, setLang] = useState<Lang>("uz");
   const t = T[lang];
   const { settings, loading } = useInviteSettings(slug);
@@ -113,6 +114,11 @@ function InviteView() {
           <p className="mt-3 text-xs font-bold uppercase tracking-[0.35em] text-accent">
             {t.invitation}
           </p>
+          {guestName && (
+            <p className="mt-2 text-lg font-bold text-primary">
+              Hurmatli {guestName}!
+            </p>
+          )}
           <h1 className="font-display animate-sparkle mt-3 text-4xl leading-tight text-foreground sm:text-6xl">
             {heroTitle}
           </h1>
