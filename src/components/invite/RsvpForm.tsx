@@ -46,6 +46,20 @@ export function RsvpForm({ lang, slug }: { lang: Lang; slug?: string }) {
         },
       })
       .catch((e) => console.error("notify-rsvp xatosi", e));
+
+    // Markaziy kabinetda "Tilaklar" va "Mehmonlar" statistikasi to'g'ri
+    // ko'rinishi uchun invitation_wishes jadvaliga sinxronlaymiz
+    supabase.functions
+      .invoke("sync-wish", {
+        body: {
+          slug: effectiveSlug,
+          guestName: name.trim(),
+          attendance: attending ? "yes" : "no",
+          guestsCount: attending ? guests : 0,
+          message: message.trim() || null,
+        },
+      })
+      .catch((e) => console.error("sync-wish xatosi", e));
   };
 
   if (done) {
